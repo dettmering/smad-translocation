@@ -102,11 +102,18 @@ for (i in 1:length(summary$Dose)) {
 summary$CV.Intensity <- summary$SD.Intensity / abs(summary$Mean.Intensity) * 100
 summary$Translocated.Percent <- summary$Translocated / summary$n * 100
 
+# Export raw data and summary table to csv (working directory)
+
+write.csv(nuc, paste0(format(Sys.time(), "%Y-%m-%d"), "_rawdata.csv"), row.names = F)
+write.csv(summary, paste0(format(Sys.time(), "%Y-%m-%d"), "_results.csv"), row.names = F)
+
 ###########
 # Figures #
 ###########
 
 library(ggplot2)
+
+pdf(paste0(format(Sys.time(), "%Y-%m-%d"), "_results.pdf"), width = 5.83, height = 4.13)
 
 ggplot(nuc, aes(x = Ratio)) + geom_histogram() + facet_grid(Treatment ~ Dose) + xlim(c(0,10))
 
@@ -120,3 +127,5 @@ ggplot(summary, aes(x = Dose, y = Translocated.Percent)) +
   geom_bar(aes(fill = Treatment), position = position_dodge(width=0.9)) +
   facet_grid(. ~ Celltype) + 
   theme_bw()
+
+dev.off()
