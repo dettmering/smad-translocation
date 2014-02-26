@@ -104,6 +104,7 @@ summary$Translocated.Percent <- summary$Translocated / summary$n * 100
 
 # Export raw data and summary table to csv (working directory)
 
+write.csv(img, paste0(format(Sys.time(), "%Y-%m-%d"), "_rawdata-img.csv"), row.names = F)
 write.csv(nuc, paste0(format(Sys.time(), "%Y-%m-%d"), "_rawdata.csv"), row.names = F)
 write.csv(summary, paste0(format(Sys.time(), "%Y-%m-%d"), "_results.csv"), row.names = F)
 
