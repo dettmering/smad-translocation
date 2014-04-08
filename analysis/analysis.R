@@ -113,10 +113,10 @@ pdf(paste0(format(Sys.time(), "%Y-%m-%d"), "_results.pdf"), width = 5.83, height
     facet_grid(. ~ Metadata_Celltype) +
     theme_bw()
 
-  ggplot(nuc, aes(x = Metadata_Dose, y = Intensity_MedianIntensity_OrigPOI)) +
+  ggplot(nuc, aes(x = Metadata_Dose, y = Nucleus_Mean_Corr * 2^16)) +
     geom_boxplot(aes(fill = Metadata_Treatment)) +
     xlab("Dose (Gy)") +
-    ylab("Median intensity in nucleus (AU)") +
+    ylab("Mean intensity in nucleus (Grey value)") +
     scale_fill_discrete(name = "Condition") +
     facet_grid(. ~ Metadata_Celltype) +
     theme_bw()
