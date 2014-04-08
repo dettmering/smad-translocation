@@ -107,11 +107,25 @@ pdf(paste0(format(Sys.time(), "%Y-%m-%d"), "_results.pdf"), width = 5.83, height
   ggplot(nuc, aes(x = Metadata_Dose, y = Ratio)) +
     geom_boxplot(aes(fill = Metadata_Treatment)) +
     geom_hline(yintercept = 1, col = "red") +
+    xlab("Dose (Gy)") +
+    ylab("Ratio nucleus/cytoplasm") +
+    scale_fill_discrete(name = "Condition") +
     facet_grid(. ~ Metadata_Celltype) +
     theme_bw()
-  
+
+  ggplot(nuc, aes(x = Metadata_Dose, y = Intensity_MedianIntensity_OrigPOI)) +
+    geom_boxplot(aes(fill = Metadata_Treatment)) +
+    xlab("Dose (Gy)") +
+    ylab("Median intensity in nucleus (AU)") +
+    scale_fill_discrete(name = "Condition") +
+    facet_grid(. ~ Metadata_Celltype) +
+    theme_bw()
+
   ggplot(summary, aes(x = Metadata_Dose, y = Translocated.Percent)) +
     geom_bar(aes(fill = Metadata_Treatment), position = position_dodge(width = 0.9)) +
+    xlab("Dose (Gy)") +
+    ylab("Cells with translocated protein (%)") +
+    scale_fill_discrete(name = "Condition") +
     facet_grid(. ~ Metadata_Celltype) +
     theme_bw()
 
