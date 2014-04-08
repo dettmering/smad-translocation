@@ -4,12 +4,12 @@
 
 # Read CellProfiler results
 
-setwd(wdir)
+# Before starting, set working directory with setwd("DIR") to directory containing CellProfiler output files
 
-img <- read.csv("DefaultOUT_Image.csv")
-cells <- read.csv("DefaultOUT_Cells.csv")
-nuc <- read.csv("DefaultOUT_Nuclei.csv")
-cytopl <- read.csv("DefaultOUT_Cytoplasm.csv")
+img <- read.csv("Image.csv")
+cells <- read.csv("Cells.csv")
+nuc <- read.csv("Nuclei.csv")
+cytopl <- read.csv("Cytoplasm.csv")
 
 # Load sources
 
@@ -20,10 +20,10 @@ source_url('https://raw.github.com/tdett/r-helpers/master/generateList.R')
 # Set classifiers
 
 classifiers <- c(
-  'Dose',
-  'Treatment',
-  'Time.after.irr',
-  'Celltype'
+  'Metadata_Dose',
+  'Metadata_Treatment',
+  'Metadata_Time',
+  'Metadata_Celltype'
 )
 
 # Parse information from file name: Celltype-Dosis-Treatment-Time-Sample-_***.tif
@@ -31,27 +31,11 @@ classifiers <- c(
 image_area_cm2 <- 635.34 * 474.57 / 10^8
 img$cells_per_cm2 <- img$Count_Nuclei / image_area_cm2
 
-res <- strsplit(as.character(img$FileName_OrigDNA), '-')
-res <- do.call(rbind, res)
-
-img$Celltype <- res[,1]
-img$Dose <- res[,2]
-img$Treatment <- res[,3]
-img$Time.after.irr <- res[,4]
-img$Sample <- res[,5]
-
-# Write parsed information into nuclei data frame
+# Write required values from img data frame to nuc data frame
 
 for (i in img$ImageNumber) {
-  nuc[nuc$ImageNumber == i,'Dose'] <- img[img$ImageNumber == i,'Dose']
-  nuc[nuc$ImageNumber == i,'Treatment'] <- img[img$ImageNumber == i,'Treatment']
-  nuc[nuc$ImageNumber == i,'Celltype'] <- img[img$ImageNumber == i,'Celltype']
-  nuc[nuc$ImageNumber == i,'Time.after.irr'] <- img[img$ImageNumber == i,'Time.after.irr']
-  nuc[nuc$ImageNumber == i,'Sample'] <- img[img$ImageNumber == i,'Sample']
   nuc[nuc$ImageNumber == i,'Intensity_Background'] <- img[img$ImageNumber == i,'Intensity_MedianIntensity_MaskBackground']
 }
-
-#nuc$Dose <- factor(nuc$Dose, levels = c('2ab', '0 Gy', '0.5 Gy', '6 Gy', 'TGFb'))
 
 # Add Cytoplasm data
 
@@ -61,10 +45,12 @@ nuc$Cytoplasm_SD <- cytopl$Intensity_StdIntensity_OrigPOI
 nuc$Cytoplasm_Mean_Corr <- nuc$Cytoplasm_Mean - nuc$Intensity_Background
 nuc$Nucleus_Mean_Corr <- nuc$Intensity_MeanIntensity_OrigPOI - nuc$Intensity_Background
 
+# Calculate Cytoplasm-to-Nucleus ratio
+
 nuc$Ratio <- nuc$Intensity_MeanIntensity_OrigPOI / nuc$Cytoplasm_Mean
 nuc$Ratio_Corr <- nuc$Nucleus_Mean_Corr / nuc$Cytoplasm_Mean_Corr
-nuc[nuc$Ratio_Corr < 0, 'Ratio_Corr'] <- NA
-nuc[nuc$Ratio_Corr > 50, 'Ratio_Corr'] <- NA
+
+# Determine translocation status
 
 nuc$Translocated <- nuc$Intensity_MeanIntensity_OrigPOI > nuc$Cytoplasm_Mean + (2 * nuc$Cytoplasm_SD) # Binary operator: Is Smad translocated?
 nuc$Translocated_Corr <- nuc$Nucleus_Mean_Corr > nuc$Cytoplasm_Mean_Corr + (2 * nuc$Cytoplasm_SD) # Binary operator: Is Smad translocated?
@@ -85,16 +71,16 @@ nuc <- subset(nuc, AreaRatio < (mean(nuc$AreaRatio) + 3 * sd(nuc$AreaRatio))) # 
 
 summary <- generateList(nuc, classifiers)
 
-for (i in 1:length(summary$Dose)) {
+for (i in 1:length(summary$Metadata_Dose)) {
   temp <- merge(nuc, summary[i, classifiers])
   temp_img <- merge(img, summary[i, classifiers])
   
-  summary[i, 'Translocated'] <- sum(temp$Translocated)
-  summary[i, 'Mean.Intensity'] <- mean(temp$Intensity_MeanIntensity_OrigPOI)
-  summary[i, 'Median.Intensity'] <- median(temp$Intensity_MeanIntensity_OrigPOI)
-  summary[i, 'SD.Intensity'] <- sd(temp$Intensity_MeanIntensity_OrigPOI)
-  summary[i, 'Mean.Ratio'] <- mean(temp$Ratio)
-  summary[i, 'SD.Ratio'] <- sd(temp$Ratio)
+  summary[i, 'Translocated'] <- sum(temp$Translocated, na.rm = TRUE)
+  summary[i, 'Mean.Intensity'] <- mean(temp$Intensity_MeanIntensity_OrigPOI, na.rm = TRUE)
+  summary[i, 'Median.Intensity'] <- median(temp$Intensity_MeanIntensity_OrigPOI, na.rm = TRUE)
+  summary[i, 'SD.Intensity'] <- sd(temp$Intensity_MeanIntensity_OrigPOI, na.rm = TRUE)
+  summary[i, 'Mean.Ratio'] <- mean(temp$Ratio, na.rm = TRUE)
+  summary[i, 'SD.Ratio'] <- sd(temp$Ratio, na.rm = TRUE)
   
   summary[i, 'Mean.cells_per_cm2'] <- mean(temp_img$cells_per_cm2)
 }
@@ -105,7 +91,7 @@ summary$Translocated.Percent <- summary$Translocated / summary$n * 100
 # Export raw data and summary table to csv (working directory)
 
 write.csv(img, paste0(format(Sys.time(), "%Y-%m-%d"), "_rawdata-img.csv"), row.names = F)
-write.csv(nuc, paste0(format(Sys.time(), "%Y-%m-%d"), "_rawdata.csv"), row.names = F)
+if (length(nuc$Metadata_Dose) < 50000) write.csv(nuc, paste0(format(Sys.time(), "%Y-%m-%d"), "_rawdata.csv"), row.names = F)
 write.csv(summary, paste0(format(Sys.time(), "%Y-%m-%d"), "_results.csv"), row.names = F)
 
 ###########
@@ -116,17 +102,17 @@ library(ggplot2)
 
 pdf(paste0(format(Sys.time(), "%Y-%m-%d"), "_results.pdf"), width = 5.83, height = 4.13)
 
-ggplot(nuc, aes(x = Ratio)) + geom_histogram() + facet_grid(Treatment ~ Dose) + xlim(c(0,10))
-
-ggplot(nuc, aes(x = Dose, y = Ratio)) +
-  geom_boxplot(aes(fill = Treatment)) +
-  annotate("segment", x = 0, xend = 10, y = 1, yend = 1, colour = "red") +  
-  facet_grid(. ~ Celltype) +
-  theme_bw()
-
-ggplot(summary, aes(x = Dose, y = Translocated.Percent)) +
-  geom_bar(aes(fill = Treatment), position = position_dodge(width=0.9)) +
-  facet_grid(. ~ Celltype) + 
-  theme_bw()
+  ggplot(nuc, aes(x = Ratio)) + geom_histogram() + facet_grid(Metadata_Treatment ~ Metadata_Dose) + xlim(c(0,10))
+  
+  ggplot(nuc, aes(x = Metadata_Dose, y = Ratio)) +
+    geom_boxplot(aes(fill = Metadata_Treatment)) +
+    geom_hline(yintercept = 1, col = "red") +
+    facet_grid(. ~ Metadata_Celltype) +
+    theme_bw()
+  
+  ggplot(summary, aes(x = Metadata_Dose, y = Translocated.Percent)) +
+    geom_bar(aes(fill = Metadata_Treatment), position = position_dodge(width = 0.9)) +
+    facet_grid(. ~ Metadata_Celltype) +
+    theme_bw()
 
 dev.off()
