@@ -159,7 +159,7 @@ IdentifyTertiaryObjects:[module_num:7|svn_version:\'Unknown\'|variable_revision_
     Name the tertiary objects to be identified:Cytoplasm
     Name the outline image:CytoplasmOutlines
     Retain outlines of the tertiary objects?:No
-    Shrink smaller object prior to subtraction?:Yes
+    Shrink smaller object prior to subtraction?:No
 
 MeasureObjectIntensity:[module_num:8|svn_version:\'Unknown\'|variable_revision_number:3|show_window:False|notes:\x5B\x5D|batch_state:array(\x5B\x5D, dtype=uint8)|enabled:True]
     Hidden:2
