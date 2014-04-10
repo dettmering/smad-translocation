@@ -100,7 +100,7 @@ write.csv(summary, paste0(format(Sys.time(), "%Y-%m-%d"), "_results.csv"), row.n
 
 library(ggplot2)
 
-pdf(paste0(format(Sys.time(), "%Y-%m-%d"), "_results.pdf"), width = 5.83, height = 4.13)
+pdf(paste0(format(Sys.time(), "%Y-%m-%d"), "_results.pdf"), width = 8.27, height = 5.83)
 
   ggplot(nuc, aes(x = Ratio)) + geom_histogram() + facet_grid(Metadata_Treatment ~ Metadata_Dose) + xlim(c(0,10))
   
