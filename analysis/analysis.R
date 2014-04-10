@@ -110,7 +110,7 @@ pdf(paste0(format(Sys.time(), "%Y-%m-%d"), "_results.pdf"), width = 5.83, height
     xlab("Dose (Gy)") +
     ylab("Ratio nucleus/cytoplasm") +
     scale_fill_discrete(name = "Condition") +
-    facet_grid(. ~ Metadata_Celltype) +
+    facet_grid(. ~ Metadata_Time) +
     theme_bw()
 
   ggplot(nuc, aes(x = Metadata_Dose, y = Nucleus_Mean_Corr * 2^16)) +
@@ -118,15 +118,15 @@ pdf(paste0(format(Sys.time(), "%Y-%m-%d"), "_results.pdf"), width = 5.83, height
     xlab("Dose (Gy)") +
     ylab("Mean intensity in nucleus (Grey value)") +
     scale_fill_discrete(name = "Condition") +
-    facet_grid(. ~ Metadata_Celltype) +
+    facet_grid(. ~ Metadata_Time) +
     theme_bw()
 
   ggplot(summary, aes(x = Metadata_Dose, y = Translocated.Percent)) +
-    geom_bar(aes(fill = Metadata_Treatment), position = position_dodge(width = 0.9)) +
+    geom_bar(aes(fill = Metadata_Treatment), position = position_dodge(width = 0.9), stat = "identity") +
     xlab("Dose (Gy)") +
     ylab("Cells with translocated protein (%)") +
     scale_fill_discrete(name = "Condition") +
-    facet_grid(. ~ Metadata_Celltype) +
+    facet_grid(. ~ Metadata_Time) +
     theme_bw()
 
 dev.off()
