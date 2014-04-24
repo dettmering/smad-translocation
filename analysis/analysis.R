@@ -11,6 +11,8 @@ cells <- read.csv("Cells.csv")
 nuc <- read.csv("Nuclei.csv")
 cytopl <- read.csv("Cytoplasm.csv")
 
+z.threshold <- 2 # How many SDs must the nuclear signal be away from the cytoplasm signal to count as translocated?
+
 # Load sources
 
 library(devtools) # needed for https source from github
@@ -50,10 +52,13 @@ nuc$Nucleus_Mean_Corr <- nuc$Intensity_MeanIntensity_OrigPOI - nuc$Intensity_Bac
 nuc$Ratio <- nuc$Intensity_MeanIntensity_OrigPOI / nuc$Cytoplasm_Mean
 nuc$Ratio_Corr <- nuc$Nucleus_Mean_Corr / nuc$Cytoplasm_Mean_Corr
 
+# Calculate z-score
+
+nuc$z.score <- (nuc$Intensity_MeanIntensity_OrigPOI - nuc$Cytoplasm_Mean) / nuc$Cytoplasm_SD
+
 # Determine translocation status
 
-nuc$Translocated <- nuc$Intensity_MeanIntensity_OrigPOI > nuc$Cytoplasm_Mean + (2 * nuc$Cytoplasm_SD) # Binary operator: Is Smad translocated?
-nuc$Translocated_Corr <- nuc$Nucleus_Mean_Corr > nuc$Cytoplasm_Mean_Corr + (2 * nuc$Cytoplasm_SD) # Binary operator: Is Smad translocated?
+nuc$Translocated <- nuc$z.score > z.threshold # Binary operator: Is Smad translocated?
 
 # Area
 

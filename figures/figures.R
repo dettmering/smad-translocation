@@ -14,15 +14,23 @@ ggplot(nuc, aes(x = Metadata_Dose, y = Ratio)) +
   xlab("Dose (Gy)") +
   ylab("Ratio nucleus/cytoplasm") +
   scale_fill_discrete(name = "Treatment") +
-  facet_grid(. ~ Metadata_Time) +
+  facet_grid(Metadata_Celltype ~ Metadata_Time) +
   theme_bw()
+
+ggplot(nuc, aes(x = Metadata_Dose, y = z.score)) +
+  geom_boxplot(aes(fill = Metadata_Treatment)) +
+  geom_hline(yintercept = z.threshold, col = "red") +
+  xlab("Dose (Gy)") +
+  ylab("z-score") +
+  scale_fill_discrete(name = "Treatment") +
+  facet_grid(Metadata_Celltype ~ Metadata_Time)
 
 ggplot(nuc, aes(x = Metadata_Dose, y = Nucleus_Mean_Corr * 2^16)) +
   geom_boxplot(aes(fill = Metadata_Treatment)) +
   xlab("Dose (Gy)") +
   ylab("Mean intensity in nucleus (Grey value)") +
   scale_fill_discrete(name = "Treatment") +
-  facet_grid(. ~ Metadata_Time) +
+  facet_grid(Metadata_Celltype ~ Metadata_Time) +
   theme_bw()
 
 ggplot(summary, aes(x = Metadata_Dose, y = Translocated.Percent)) +
@@ -30,7 +38,7 @@ ggplot(summary, aes(x = Metadata_Dose, y = Translocated.Percent)) +
   xlab("Dose (Gy)") +
   ylab("Cells with translocated protein (%)") +
   scale_fill_discrete(name = "Treatment") +
-  facet_grid(. ~ Metadata_Time) +
+  facet_grid(Metadata_Celltype ~ Metadata_Time) +
   theme_bw()
 
 dev.off()
