@@ -6,10 +6,10 @@
 
 # Before starting, set working directory with setwd("DIR") to directory containing CellProfiler output files
 
-img <- read.csv("Image.csv")
-cells <- read.csv("Cells.csv")
-nuc <- read.csv("Nuclei.csv")
-cytopl <- read.csv("Cytoplasm.csv")
+if (!exists("img")) img <- read.csv("Image.csv")
+if (!exists("cells")) cells <- read.csv("Cells.csv")
+if (!exists("nuc")) nuc <- read.csv("Nuclei.csv")
+if (!exists("cytopl")) cytopl <- read.csv("Cytoplasm.csv")
 
 z.threshold <- 2 # How many SDs must the nuclear signal be away from the cytoplasm signal to count as translocated?
 
@@ -35,8 +35,10 @@ img$cells_per_cm2 <- img$Count_Nuclei / image_area_cm2
 
 # Write required values from img data frame to nuc data frame
 
-for (i in img$ImageNumber) {
-  nuc[nuc$ImageNumber == i,'Intensity_Background'] <- img[img$ImageNumber == i,'Intensity_MedianIntensity_MaskBackground']
+if (!("Intensity_Background" %in% colnames(nuc))) {
+  for (i in img$ImageNumber) {
+    nuc[nuc$ImageNumber == i,'Intensity_Background'] <- img[img$ImageNumber == i,'Intensity_MedianIntensity_MaskBackground']
+  }
 }
 
 # Add Cytoplasm data
