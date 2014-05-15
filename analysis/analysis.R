@@ -106,17 +106,17 @@ write.csv(summary, paste0(format(Sys.time(), "%Y-%m-%d"), "_results.csv"), row.n
 # Summarize translocation over all experiments #
 ################################################
 
-classifiers <- c(
+transloc_classifiers <- c(
   'Metadata_Dose',
   'Metadata_Treatment',
   'Metadata_Time',
   'Metadata_Celltype'
 )
 
-transloc <- generateList(summary, classifiers)
+transloc <- generateList(summary, transloc_classifiers)
 
 for (i in 1:length(transloc$Metadata_Dose)) {
-  temp <- merge(summary, transloc[i, classifiers])
+  temp <- merge(summary, transloc[i, transloc_classifiers])
   
   transloc[i, 'Mean.Translocated'] <- mean(temp$Translocated.Percent)
   transloc[i, 'SD.Translocated'] <- sd(temp$Translocated.Percent)
