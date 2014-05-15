@@ -25,7 +25,8 @@ classifiers <- c(
   'Metadata_Treatment',
   'Metadata_Time',
   'Metadata_Celltype',
-  'Metadata_Experiment'
+  'Metadata_Experiment',
+  'Metadata_Replicate'
 )
 
 # Parse information from file name: Celltype-Dosis-Treatment-Time-Sample-_***.tif
@@ -100,3 +101,27 @@ summary$Translocated.Percent <- summary$Translocated / summary$n * 100
 write.csv(img, paste0(format(Sys.time(), "%Y-%m-%d"), "_rawdata-img.csv"), row.names = F)
 if (length(nuc$Metadata_Dose) < 50000) write.csv(nuc, paste0(format(Sys.time(), "%Y-%m-%d"), "_rawdata.csv"), row.names = F)
 write.csv(summary, paste0(format(Sys.time(), "%Y-%m-%d"), "_results.csv"), row.names = F)
+
+################################################
+# Summarize translocation over all experiments #
+################################################
+
+classifiers <- c(
+  'Metadata_Dose',
+  'Metadata_Treatment',
+  'Metadata_Time',
+  'Metadata_Celltype'
+)
+
+transloc <- generateList(summary, classifiers)
+
+for (i in 1:length(transloc$Metadata_Dose)) {
+  temp <- merge(summary, transloc[i, classifiers])
+  
+  transloc[i, 'Mean.Translocated'] <- mean(temp$Translocated.Percent)
+  transloc[i, 'SD.Translocated'] <- sd(temp$Translocated.Percent)
+}
+
+transloc$SEM.Translocated <- transloc$SD.Translocated / sqrt(transloc$n)
+
+write.csv(transloc, paste0(format(Sys.time(), "%Y-%m-%d"), "_translocation-summary.csv"), row.names = F)
