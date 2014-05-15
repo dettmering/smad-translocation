@@ -39,6 +39,7 @@ ggplot(transloc, aes(x = Metadata_Dose, y = Mean.Translocated)) +
   geom_text(aes(y = 0, label = n, group = Metadata_Treatment), position = position_dodge(width = 0.9), size = 2, vjust = -1) +
   xlab("Dose (Gy)") +
   ylab("Cells with translocated protein (%)") +
+  ylim(c(0, 100)) +
   scale_fill_discrete(name = "Treatment") +
   facet_grid(Metadata_Celltype ~ Metadata_Time)
 
