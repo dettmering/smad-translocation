@@ -7,7 +7,6 @@
 # Before starting, set working directory with setwd("DIR") to directory containing CellProfiler output files
 
 if (!exists("img")) img <- read.csv("Image.csv")
-if (!exists("cells")) cells <- read.csv("Cells.csv")
 if (!exists("nuc")) nuc <- read.csv("Nuclei.csv")
 if (!exists("cytopl")) cytopl <- read.csv("Cytoplasm.csv")
 
@@ -64,7 +63,7 @@ nuc$Translocated <- nuc$z.score > z.threshold # Binary operator: Is Smad translo
 
 # Area
 
-nuc$Cells_Area <- cells$AreaShape_Area
+nuc$Cells_Area <- nuc$AreaShape_Area + cytopl$AreaShape_Area
 nuc$AreaRatio <- nuc$AreaShape_Area / nuc$Cells_Area * 100
 
 # QC
