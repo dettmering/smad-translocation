@@ -36,7 +36,7 @@ ggplot(nuc, aes(x = Metadata_Dose, y = Nucleus_Mean_Corr * 2^16)) +
 ggplot(transloc, aes(x = Metadata_Dose, y = Mean.Translocated)) +
   geom_bar(aes(fill = Metadata_Treatment), position = position_dodge(width = 0.9), stat = "identity") +
   geom_errorbar(aes(ymin = Mean.Translocated - SEM.Translocated, ymax = Mean.Translocated + SEM.Translocated, group = Metadata_Treatment), position = position_dodge(width = 0.9), stat = "identity", width = 0.1) +
-  geom_text(aes(y = 0, label = n, group = Metadata_Treatment), position = position_dodge(width = 0.9), size = 2, vjust = -1) +
+  geom_text(aes(y = 0, label = n, group = Metadata_Treatment), position = position_dodge(width = 0.9), size = 4, vjust = -1) +
   xlab("Dose (Gy)") +
   ylab("Cells with translocated protein (%)") +
   ylim(c(0, 100)) +
