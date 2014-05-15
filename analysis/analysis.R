@@ -24,7 +24,8 @@ classifiers <- c(
   'Metadata_Dose',
   'Metadata_Treatment',
   'Metadata_Time',
-  'Metadata_Celltype'
+  'Metadata_Celltype',
+  'Metadata_Experiment'
 )
 
 # Parse information from file name: Celltype-Dosis-Treatment-Time-Sample-_***.tif
