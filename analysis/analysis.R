@@ -29,31 +29,17 @@ classifiers <- c(
   'Metadata_Replicate'
 )
 
-# Parse information from file name: Celltype-Dosis-Treatment-Time-Sample-_***.tif
-
 image_area_cm2 <- 635.34 * 474.57 / 10^8
 img$cells_per_cm2 <- img$Count_Nuclei / image_area_cm2
-
-# Write required values from img data frame to nuc data frame
-
-if (!("Intensity_Background" %in% colnames(nuc))) {
-  for (i in img$ImageNumber) {
-    nuc[nuc$ImageNumber == i,'Intensity_Background'] <- img[img$ImageNumber == i,'Intensity_MedianIntensity_MaskBackground']
-  }
-}
 
 # Add Cytoplasm data
 
 nuc$Cytoplasm_Mean <- cytopl$Intensity_MeanIntensity_OrigPOI
 nuc$Cytoplasm_SD <- cytopl$Intensity_StdIntensity_OrigPOI
 
-nuc$Cytoplasm_Mean_Corr <- nuc$Cytoplasm_Mean - nuc$Intensity_Background
-nuc$Nucleus_Mean_Corr <- nuc$Intensity_MeanIntensity_OrigPOI - nuc$Intensity_Background
-
 # Calculate Cytoplasm-to-Nucleus ratio
 
 nuc$Ratio <- nuc$Intensity_MeanIntensity_OrigPOI / nuc$Cytoplasm_Mean
-nuc$Ratio_Corr <- nuc$Nucleus_Mean_Corr / nuc$Cytoplasm_Mean_Corr
 
 # Calculate z-score
 
@@ -71,7 +57,6 @@ nuc$AreaRatio <- nuc$AreaShape_Area / nuc$Cells_Area * 100
 # QC
 
 nuc <- subset(nuc, AreaRatio < 100) # Exclude nuclei without cytoplasm
-nuc <- subset(nuc, AreaRatio < (mean(nuc$AreaRatio) + 3 * sd(nuc$AreaRatio))) # Exclude outliers in ratio, e.g. cells with very small cytoplasm
 
 ##########################################################
 # Calculate percentage translocated and other parameters #
