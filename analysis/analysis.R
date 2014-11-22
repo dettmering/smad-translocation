@@ -2,9 +2,12 @@
 ### Smad translocation analysis ###
 ###################################
 
-# Read CellProfiler results
+# Analysis pipeline for detecting nuclear translocation of Smad2/3 proteins into the nucleus
+# (c) 2014 Till Dettmering
 
 # Before starting, set working directory with setwd("DIR") to directory containing CellProfiler output files
+
+# Read CellProfiler results
 
 if (!exists("img")) img <- read.csv("Image.csv")
 if (!exists("nuc")) nuc <- read.csv("Nuclei.csv")
@@ -16,9 +19,10 @@ z.threshold <- 2 # How many SDs must the nuclear signal be away from the cytopla
 
 library(devtools) # needed for https source from github
 
-source_url('https://raw.github.com/tdett/r-helpers/master/generateList.R')
+source_url('https://raw.githubusercontent.com/tdett/r-helpers/master/generateList.R')
+source_url('https://raw.githubusercontent.com/dettmering/r-helpers/master/dfBackup.R')
 
-# Set classifiers
+# Set classifiers; the results will be separated by these columns
 
 classifiers <- c(
   'Metadata_Dose',
@@ -29,7 +33,7 @@ classifiers <- c(
   'Metadata_Replicate'
 )
 
-image_area_cm2 <- 635.34 * 474.57 / 10^8
+image_area_cm2 <- 635.34 * 474.57 / 10^8 # Image size in cm^2. These values are likely different for your microscope.
 img$cells_per_cm2 <- img$Count_Nuclei / image_area_cm2
 
 # Add Cytoplasm data
@@ -81,12 +85,6 @@ for (i in 1:length(summary$Metadata_Dose)) {
 summary$CV.Intensity <- summary$SD.Intensity / abs(summary$Mean.Intensity) * 100
 summary$Translocated.Percent <- summary$Translocated / summary$n * 100
 
-# Export raw data and summary table to csv (working directory)
-
-write.csv(img, paste0(format(Sys.time(), "%Y-%m-%d"), "_rawdata-img.csv"), row.names = F)
-if (length(nuc$Metadata_Dose) < 50000) write.csv(nuc, paste0(format(Sys.time(), "%Y-%m-%d"), "_rawdata.csv"), row.names = F)
-write.csv(summary, paste0(format(Sys.time(), "%Y-%m-%d"), "_results.csv"), row.names = F)
-
 ################################################
 # Summarize translocation over all experiments #
 ################################################
@@ -109,4 +107,6 @@ for (i in 1:length(transloc$Metadata_Dose)) {
 
 transloc$SEM.Translocated <- transloc$SD.Translocated / sqrt(transloc$n)
 
-write.csv(transloc, paste0(format(Sys.time(), "%Y-%m-%d"), "_translocation-summary.csv"), row.names = F)
+# Export raw data and summary table to csv (working directory)
+
+dfBackup(c('img', 'summary', 'transloc'))
